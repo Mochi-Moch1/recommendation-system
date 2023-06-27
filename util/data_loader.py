@@ -31,4 +31,29 @@ class DataLoader:
         
         return movielens_train, movielens_test
 
-    def _load(self)
+    def _load(self) -> (pd.DataFrame, pd.DataFrame):
+        # Load the movie information
+        m_cols = ["movie_id", "title", "genre"]
+        movies = pd.read_csv(os.path.join(self.data_path, "movies.dat"), name=m_cols, sep="::", engine="python")
+        # to list
+        movies["genre"] = movies.genre.apply(lambda x: list(x.split("|")))
+
+        # Load movie tag
+        t_cols = ["user_id", "movie_id", "tag", "timestamp"]
+        user_tagged_movies = pd.read_csv(os.path.join(self.data_path, "tags.dat"), name=t_cols, sep="::", engine="python")
+        # lowerscale tag
+        user_tagged_movies["tag"] = user_tagged_movies["tag"].str.lower()
+        movie_tags = user_tagged_movies.groupby("movie_id").agg({"tag": list})
+        # Integrate tag
+        movies = movies.merge(movie_tags, on="movie_id", how="left")
+        
+        # Load rating data
+        r_cols = ["user_id", "movie_id", "rating", "timestamp"]
+        ratings = pd.read_csv(os.path.join(self.data_path, "ratings.dat"), name=r_cols, sep="::", engine="python")
+        # Reduce user number
+        valid_user_ids = sorted(ratings.user_id.unique())[:self.num_users]
+        ratings = ratings[ratings.user_id <= max(valid_user_ids)]
+        # Integrage data
+        movielens_ratings = ratings.merge(movies, on="movie_id")
+        return movielens_ratings, movies
+    
