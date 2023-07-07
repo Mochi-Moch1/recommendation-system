@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from util.dataset import Dataset
+from util.models import Dataset, RecommendResult
 from util.data_loader import DataLoader
 from util.metric_calculator import MetricCalculator
 

@@ -17,7 +17,7 @@ class DataLoader:
         # Only movies with rating of 4 or higher are considered answer.
         # key is user id. value is an item id highly rated by user.
         movielens_test_user2items = (
-            movielens_test[movielens_test >= 4].groupby("user_id").agg({"movie_id": list})["movie_id"].to_dict()
+            movielens_test[movielens_test.rating >= 4].groupby("user_id").agg({"movie_id": list})["movie_id"].to_dict()
         ) 
         return Dataset(movielens_train, movielens_test, movielens_test_user2items, movie_content)
     
